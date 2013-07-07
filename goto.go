@@ -72,22 +72,15 @@ func handleErr(w http.ResponseWriter, req *http.Request, errStatus int) {
 	http.Error(w, err, errStatus)
 }
 
-func homeHandler(w http.ResponseWriter, req *http.Request) {
-	fmt.Fprintf(w, "You're home")
-}
-
 func main() {
 	flag.Parse()
 
 	// Create the mux router
 	router := mux.NewRouter()
 
-	// Static resources
-	router.PathPrefix("/assets/").Handler(http.StripPrefix("/assets/", http.FileServer(http.Dir("web/assets/"))))
-	router.PathPrefix("/favicon.ico").HandlerFunc(func(w http.ResponseWriter, req *http.Request) {})
-
-	// Home handler
-	router.HandleFunc("/", homeHandler)
+	// Static resources - root '/' for *index.html* or any resource ending in
+	// common known files (css, html, jpg, etc.) are handled by the fileServer
+	router.Handle("/{static-res:()|(.+\\.)(html|js|css|jpg|png|ico|gif)$}", http.FileServer(http.Dir("web/")))
 
 	// Mapping handling
 	router.HandleFunc("/mappings", entriesHandler)
