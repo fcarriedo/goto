@@ -3,17 +3,28 @@
 Service that lets you create short mapping for easy sharing a la Google's
 internal `http://go/somewhere`.
 
-**What this is**: First lets tackle what is not: *this is not* a link
-shortener.  While they both share similar characteristics, their intent is
-different. The link shortener main objective is to create a short URL out of a
-long one generally through ID auto-generation.  This main intent is to share
-clear, readable, easy to remember mappings for users. For eg.: You can announce
-your organization that they can check the company's *testing* policy at
-`http://go/test` (or once the company gets used to it you can announce it as
-`go/test` Users can easily remember those URLs and they clearly declare their
-intention.
+#### What this is:
 
-Other possible example uses:
+This main intent is to share clear, readable, easy to remember URL mappings and
+reduce cognitive load.
+
+  > *User*: Where was our *interns* policy? Is it on the wiki? If on wiki.. where?
+  >
+  > *User*: I don't exactly know, but I remember I can get there by **http://go/interns**, Great!
+
+#### What this is NOT:
+
+*This is not* a link shortener.  While they both share similar characteristics,
+their intent is different. The link shortener main objective is to create a
+short URL out of a long one generally through ID auto-generation. *See 'What this
+is' for it's intention*
+
+##### Example use-cases:
+
+You can announce to your organization that they can check the company's *testing*
+policy at `http://go/tests` (or once the company gets used to it you can announce
+it as `go/tests`. Users can easily remember that URL and at the same time identify
+it's intention.
 
   * `go/1.2-roadmap`
   * `go/interns`
@@ -29,16 +40,24 @@ service of `go` to this service and make it listen (or proxy it) on port `80`.
 In development, you might want to create an entry in your `hosts` file for
 `127.0.0.1      go`.
 
+#### Running the service
+
+The server can be run just by executing it:
+
+```
+  $ ./goto
+```
+
 For maximizing succinctness it runs on port `80` by default but can be changed
 at startup with the `-p` param.
 
 ```
-  $ goto -p 8080 # starts the service in port 80
+  $ goto -p 8080 # starts the service in port 8080
 ```
 
 ### Reserved endpoints
 
-Supposing that you have the mapping on your DNS or `hosts` as `go => [servers
+Implying that you have the mapping on your DNS or `hosts` as `go => [servers
 IP address]`:
 
 `http://go/mappings` - Will give you a list of the current existing mappings.
