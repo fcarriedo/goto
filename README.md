@@ -8,9 +8,9 @@ internal `http://go/somewhere`.
 This main intent is to share clear, readable, easy to remember URL mappings and
 reduce cognitive load.
 
-  > *User*: Where was our *interns* policy? Is it on the wiki? If on wiki.. where?
+  > *(on user's head)*: Where was our *interns* policy? Is it on the wiki? If on wiki.. where?
   >
-  > *User*: I don't exactly know, but I remember I can get there by **http://go/interns**, Great!
+  > *(on user's head)*: I don't exactly know, but I remember I can get there by **http://go/interns**, Great!
 
 #### What this is NOT:
 
