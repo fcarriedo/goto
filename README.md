@@ -20,12 +20,41 @@ at startup with the `-p` param.
 
 ### Reserved endpoints
 
-Supposing that you have the mapping on your DNS or `hosts` as
-`go => [servers IP address]`:
+Supposing that you have the mapping on your DNS or `hosts` as `go => [servers
+IP address]`:
 
 `http://go/mappings` - Will give you a list of the current existing mappings.
 
-`http://go/mappings/{entry}` - Will give you the url that maps the given entry if exists or *404 Not Found*.
+`http://go/mappings/{entry}` - Will give you the url that maps the given entry
+if exists or *404 Not Found*.
+
+### Roadmap
+
+The goal of this project is to stay as simple and hackable as possible. Features
+need to be very, **very** justified.
+
+#### What it will NOT
+
+  * On the few pages that it entails, it will **never** support crippled
+    irresponsible browsers (yeah, yeah... IE).
+  * Filter unwanted (possible malignus) URLs. Since the final destination gets
+    obscured by the mapped URL, it expects the users to be responsible to where
+    they redirect.
+
+#### What it WILL
+
+  * Very simple csv datastore
+
+#### MAYBE
+
+  * Simple statistics (maybe achiebable by integrating google analytics - will
+    it work on an *only* internal network?)
+  * Authenticated creation of mappings? - Since we will not be filtering
+    unwanted URL, at least we might want to know who registered them (will this
+    prevent abuse?).
+    * Possible shortcommings: Support LDAP? Support DB Auth? What DB? - We can
+      see it starts to get spooky. Maybe no support at all and count on mature
+      responsible users.
 
 ### Customizing UI
 
