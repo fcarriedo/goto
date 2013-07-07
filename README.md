@@ -3,6 +3,24 @@
 Service that lets you create short mapping for easy sharing a la Google's
 internal `http://go/somewhere`.
 
+**What this is**: First lets tackle what is not: *this is not* a link
+shortener.  While they both share similar characteristics, their intent is
+different. The link shortener main objective is to create a short URL out of a
+long one generally through ID auto-generation.  This main intent is to share
+clear, readable, easy to remember mappings for users. For eg.: You can announce
+your organization that they can check the company's *testing* policy at
+`http://go/test` (or once the company gets used to it you can announce it as
+`go/test` Users can easily remember those URLs and they clearly declare their
+intention.
+
+Other possible example uses:
+
+  * `go/1.2-roadmap`
+  * `go/interns`
+  * `go/pci`
+  * `go/policy`
+  * `go/nsa`  -- *creepy* --
+
 ### Usage
 
 Ideally when using it in production, you would like to map the the internal DNS
