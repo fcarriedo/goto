@@ -1,0 +1,10 @@
+{{ template "header" }}
+
+  <h3>Current mappings</h3>
+  <ul>
+    {{range $k, $v := .}}
+    <li>{{ $k }} = {{ $v }}</li>
+    {{end}}
+  </ul>
+
+{{ template "footer" }}

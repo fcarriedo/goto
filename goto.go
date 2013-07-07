@@ -4,37 +4,50 @@ import (
 	"flag"
 	"fmt"
 	"github.com/gorilla/mux"
+	"html/template"
 	"log"
 	"net/http"
 )
 
-var port = flag.Int("p", 80, "http port to run")
-
 var db = map[string]string{
 	"gogl": "http://google.com",
+	"yhoo": "http://yahoo.com",
+	"test": "http://golang.org",
 }
+
+// Command line args def
+var port = flag.Int("p", 80, "http port to run")
+
+var templates *template.Template
 
 func init() {
 	fmt.Println("Initializing the mapping database...")
+
+	// Parse all templates
+	templates = template.Must(template.New("app").ParseGlob("web/tmpl/*.html"))
+}
+
+// Home handler
+func homeHandler(w http.ResponseWriter, req *http.Request) {
+	templates.ExecuteTemplate(w, "index.html", req.FormValue("m"))
 }
 
 // The core intent of the tool
 func redirectHandler(w http.ResponseWriter, req *http.Request) {
 	// Get it from the datastore and redirect
-	url := db[mux.Vars(req)["entry"]]
+	entry := mux.Vars(req)["entry"]
+	url := db[entry]
 	if url != "" {
 		http.Redirect(w, req, url, http.StatusFound)
 	} else {
-		handleErr(w, req, http.StatusNotFound)
+		templates.ExecuteTemplate(w, "404.html", entry)
 	}
 }
 
 func entriesHandler(w http.ResponseWriter, req *http.Request) {
 	switch req.Method {
 	case "GET":
-		for k, v := range db {
-			fmt.Fprintf(w, "%s=%s\r\n", k, v)
-		}
+		templates.ExecuteTemplate(w, "listing.html", db)
 	default:
 		handleErr(w, req, http.StatusMethodNotAllowed)
 	}
@@ -78,9 +91,12 @@ func main() {
 	// Create the mux router
 	router := mux.NewRouter()
 
-	// Static resources - root '/' for *index.html* or any resource ending in
-	// common known files (css, html, jpg, etc.) are handled by the fileServer
-	router.Handle("/{static-res:()|(.+\\.)(html|js|css|jpg|png|ico|gif)$}", http.FileServer(http.Dir("web/")))
+	// Static resources - resource ending in common know web file formats
+	// (css, html, jpg, etc.) get handled directly by the fileServer
+	router.Handle("/{static-res:(.+\\.)(js|css|jpg|png|ico|gif)$}", http.FileServer(http.Dir("web/")))
+
+	// Home handler
+	router.HandleFunc("/", homeHandler)
 
 	// Mapping handling
 	router.HandleFunc("/mappings", entriesHandler)

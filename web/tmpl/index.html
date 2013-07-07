@@ -1,0 +1,18 @@
+{{ template "header" }}
+
+  <h3>Welcome</h3>
+  <p>Please define a mapping: </p>
+  <p>
+    http://go/<input type='text' name='url' value='{{.}}'/>
+  </p>
+
+  <script>
+    if (window.addEventListener) {
+      window.addEventListener('load', init, false);
+    }
+
+    function init() {
+    }
+  </script>
+
+{{ template "footer" }}
