@@ -15,7 +15,7 @@ For maximizing succinctness it runs on port `80` by default but can be changed
 at startup with the `-p` param.
 
 ```
-  goto -p 8080 # starts the service in port 80
+  $ goto -p 8080 # starts the service in port 80
 ```
 
 ### Reserved endpoints
