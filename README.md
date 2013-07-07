@@ -21,20 +21,11 @@ at startup with the `-p` param.
 ### Reserved endpoints
 
 Supposing that you have the mapping on your DNS or `hosts` as
-`go => [servers IP address]`
+`go => [servers IP address]`:
 
-```
-  http://go/mappings
-```
+`http://go/mappings` - Will give you a list of the current existing mappings.
 
-Will give you a list of the current existing mappings.
-
-```
-  http://go/mappings/{entry}
-```
-
-Will give you the mapping of the given entry if exists or a *404 Not Found* if
-it doesn't.
+`http://go/mappings/{entry}` - Will give you the url that maps the given entry if exists or *404 Not Found*.
 
 ### Customizing UI
 
