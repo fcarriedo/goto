@@ -26,7 +26,7 @@ policy at `http://go/tests` (or once the company gets used to it you can announc
 it as `go/tests`. Users can easily remember that URL and at the same time identify
 it's intention.
 
-  * `go/1.2-roadmap`
+  * `go/roadmap`
   * `go/interns`
   * `go/pci`
   * `go/policy`
