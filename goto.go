@@ -17,6 +17,7 @@ var db = map[string]string{
 
 // Command line args def
 var port = flag.Int("p", 80, "http port to run")
+var devMode = flag.Bool("dev", false, "run in development mode")
 
 var templates *template.Template
 
@@ -29,6 +30,11 @@ func init() {
 
 // Home handler
 func homeHandler(w http.ResponseWriter, req *http.Request) {
+	if *devMode {
+		// Compile templates on every request
+		templates = template.Must(template.New("app").ParseGlob("web/tmpl/*.html"))
+	}
+
 	templates.ExecuteTemplate(w, "index.html", req.FormValue("m"))
 }
 
