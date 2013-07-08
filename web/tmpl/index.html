@@ -1,18 +1,130 @@
 {{ template "header" }}
 
+  <div id='lame-browser-error' class='alert alert-error hide'>
+    Don't be lame. Use a modern browser. How about Firefox or Chrome?
+  </div>
+
+  <div id='invalid-url-warn' class='alert alert-warning hide'>
+    You still need to provide a destination url
+  </div>
+
+  <div id='success-msg' class='alert alert-success hide'>
+    Your mapping was successfully created! <a id='new-mapping' href=''>Test it</a>.
+  </div>
+
   <h3>Welcome</h3>
-  <p>Please define a mapping: </p>
-  <p>
-    http://go/<input type='text' name='url' value='{{.}}'/>
-  </p>
+
+  <div>
+    <input id='mapping' type='text' class='input-medium' value="{{.}}" placeholder='mapping'/>
+    =&gt; <input id='url' type='text' class='input-xlarge' placeholder='destination URL'/>
+    <button id='btn-create' class='btn btn-primary disabled'><i class='icon-white icon-ok'></i> Create</button>
+  </div>
 
   <script>
-    if (window.addEventListener) {
-      window.addEventListener('load', init, false);
-    }
+    (function() {
+      // We assume nothing meaninful can be described with a 1 char mapping
+      var minCharLength = 1;
 
-    function init() {
-    }
+      // UI elems declaration
+      var $mapping;
+      var $url;
+      var $create;
+
+      var $invUrlWarn;
+
+      if(window.addEventListener && window.console) {
+        window.addEventListener('load', init, false);
+      } else {
+        document.getElementById('lame-browser-error').classList.remove('hide');
+      }
+
+      function init() {
+        $mapping    = document.getElementById('mapping');
+        $url        = document.getElementById('url');
+        $create     = document.getElementById('btn-create');
+        $invUrlWarn = document.getElementById('invalid-url-warn');
+
+        $mapping.focus();
+        if($mapping.value != "") {
+          checkAvailability();
+        }
+
+        $mapping.addEventListener('keyup', checkAvailability, false);
+        $create.addEventListener('click', submit, false);
+      }
+
+      function submit() {
+        var mapping = $mapping.value;
+        var url     = $url.value;
+        if(!$create.classList.contains('disabled')) {
+          if($url.value.trim() != "") {
+            console.log("submitting: " + mapping);
+
+            disable();
+
+            var req = new XMLHttpRequest();
+            req.open('PUT', '/mappings/' + mapping, true);
+            req.onload = function() {
+              switch(req.status) {
+                case 200: // Ok
+                case 201: // Created
+                  console.log('Created!');
+                  document.getElementById('success-msg').classList.remove('hide');
+                  document.getElementById('new-mapping').href = '/' + mapping;
+                  break;
+                default:
+                  console.log('got else. Something is not right: ' + req.status);
+                  break;
+              }
+            };
+            var data = new FormData();
+            data.append("url", url);
+            req.send(data);
+          } else {
+            $invUrlWarn.classList.remove('hide');
+          }
+        }
+      }
+
+      function checkAvailability() {
+        var mapping = $mapping.value;
+        if(mapping.length > minCharLength) {
+          // Initiate the request
+          var req = new XMLHttpRequest();
+          req.open('GET', '/mappings/' + mapping, true);
+          req.onload = function() {
+            switch(req.status) {
+              case 404:
+                // The resource does not exist. IT IS AVAILABLE.
+                console.log('got 404. Resource is avaiable.');
+                enable();
+                break;
+              case 200:
+                // The resource exist. It is not available.
+                console.log('got 200. Resource is not available');
+                disable();
+                break;
+              default:
+                // Disable all buttons. Something is not right.
+                console.log('got else. Something is not right.');
+                break;
+            }
+          };
+          req.send(null);
+        } else {
+          disable();
+        }
+      }
+
+      function enable() {
+        $create.classList.remove('disabled');
+      }
+
+      function disable() {
+        $create.classList.add('disabled');
+      }
+
+    })();
   </script>
 
 {{ template "footer" }}
