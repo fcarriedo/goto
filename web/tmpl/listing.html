@@ -1,18 +1,21 @@
 {{ template "header" }}
 
+  <div style='text-align: right'><a href='/'>Create New</a></div>
+
   <h3>Current mappings</h3>
+
   <table class='table table-bordered table-striped table-condensed'>
     <thead>
       <tr><th>Entry</th><th></th><th>URL</th></tr>
     </thead>
     <tbody>
-    {{range $k, $v := .}}
+      {{range $k, $v := .}}
       <tr>
         <td><a href='/{{ $k }}'>{{ $k }}</a></td>
         <td> =&gt; </td>
         <td><a href='{{ $v }}'>{{ $v }}</a></td>
       </tr>
-    {{end}}
+      {{end}}
     </tbody>
   </table>
 
