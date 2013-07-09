@@ -110,8 +110,8 @@
               case 200:
                 // The resource exist. It is not available.
                 console.log('got 200. Resource is not available');
-                notify('warn', '<code>http://go/' + mapping + '</code> already maps to <code>' + req.responseText + '</code>');
-                disable();
+                notify('warn', '<code>http://go/' + mapping + '</code> already maps to <code>' + req.responseText + '</code>. <strong>You may be overwriting it.</strong>');
+                enable();
                 break;
               default:
                 // Disable all buttons. Something is not right.
