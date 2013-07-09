@@ -1,19 +1,18 @@
 package main
 
 import (
+	"encoding/csv"
 	"flag"
 	"fmt"
 	"github.com/gorilla/mux"
 	"html/template"
 	"log"
 	"net/http"
+	"os"
+	"time"
 )
 
-var db = map[string]string{
-	"gogl": "http://google.com",
-	"yhoo": "http://yahoo.com",
-	"test": "http://golang.org",
-}
+var db = make(map[string]string)
 
 // Command line args def
 var port = flag.Int("p", 80, "http port to run")
@@ -21,8 +20,11 @@ var devMode = flag.Bool("dev", false, "run in development mode")
 
 var templates *template.Template
 
+var lazySave = debounce(save, 5*time.Second)
+
 func init() {
 	fmt.Println("Initializing the mapping database...")
+	load()
 
 	// Parse all templates
 	templates = template.Must(template.New("app").ParseGlob("web/tmpl/*.html"))
@@ -76,9 +78,11 @@ func entryHandler(w http.ResponseWriter, req *http.Request) {
 			handleErr(w, req, http.StatusBadRequest)
 		} else {
 			db[entry] = url
+			lazySave()
 		}
 	case "DELETE":
 		delete(db, entry)
+		lazySave()
 	default:
 		handleErr(w, req, http.StatusMethodNotAllowed)
 	}
@@ -117,4 +121,64 @@ func main() {
 	host := fmt.Sprintf(":%d", *port)
 	fmt.Printf("Server up and listening on %s\n", host)
 	log.Fatal(http.ListenAndServe(host, nil))
+}
+
+const dbfile = "db/mappings.csv"
+
+func load() {
+	// Open the db file
+	f, err := os.Open(dbfile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+
+	// Read the containing records.
+	reader := csv.NewReader(f)
+	rec, err := reader.ReadAll()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Load them into the map
+	for _, row := range rec {
+		db[row[0]] = row[1]
+	}
+}
+
+// Requests a save. Debounces multiple calls
+// Very quick and dirty. Revise with channels
+// since update and save are concurrent matters.
+func save() {
+	f, err := os.Create(dbfile)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	defer f.Close()
+
+	writer := csv.NewWriter(f)
+	defer writer.Flush()
+	fmt.Println("Persisting mappings.")
+	for k, v := range db {
+		err = writer.Write([]string{k, v})
+		if err != nil {
+			log.Printf("Error saving mapping: %s => %s", k, v)
+		}
+	}
+}
+
+// Utility functions
+
+func debounce(fn func(), d time.Duration) func() {
+	active := false
+	return func() {
+		if !active {
+			active = true
+			time.AfterFunc(d, func() {
+				active = false
+				fn() // execute
+			})
+		}
+	}
 }
