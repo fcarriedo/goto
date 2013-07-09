@@ -49,7 +49,9 @@
           checkAvailability();
         }
 
-        $mapping.addEventListener('keyup', checkAvailability, false);
+        var lazyCheckAvailability = debounce(checkAvailability, 1000);
+
+        $mapping.addEventListener('keyup', lazyCheckAvailability, false);
         $create.addEventListener('click', submit, false);
       }
 
@@ -124,6 +126,23 @@
         $create.classList.add('disabled');
       }
 
+      // Utility functions
+
+      // See http://underscorejs.org/#debounce doc since this serves the
+      // exact same purpose.
+      function debounce(func, time) {
+        var active = false;
+        var ctx = this; // What context do we want it to have?
+        return function() {
+          if(!active) {
+            active = true;
+            setTimeout(function() {
+              func.apply(ctx, arguments);
+              active = false;
+            }, time);
+          }
+        };
+      }
     })();
   </script>
 
