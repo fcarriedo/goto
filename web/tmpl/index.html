@@ -4,10 +4,6 @@
     Don't be lame. Use a modern browser. How about Firefox or Chrome?
   </div>
 
-  <div id='invalid-url-warn' class='alert alert-warning hide'>
-    You still need to provide a destination url
-  </div>
-
   <div id='success-msg' class='alert alert-success hide'>
     Your mapping was successfully created! <a id='new-mapping' href=''>Test it</a>.
   </div>
@@ -20,17 +16,20 @@
     <button id='btn-create' class='btn btn-primary disabled'><i class='icon-white icon-ok'></i> Create</button>
   </div>
 
+  <div id='info'></div>
+
   <script>
     (function() {
-      // We assume nothing meaninful can be described with a 1 char mapping
-      var minCharLength = 1;
+      // A valid mapping is 2+ alphanumeric+'-' chars.
+      var validMappingRe = /^[a-zA-Z0-9\-]{2,}$/;
+      // A valid URl has to start with http(s)://, ftp:// or (/)file://
+      var validUrlRe     = /^(http(s)?|(\/)?file|ftp):\/\//; // TODO: Check spec.
 
       // UI elems declaration
       var $mapping;
       var $url;
       var $create;
-
-      var $invUrlWarn;
+      var $info;
 
       if(window.addEventListener && window.console) {
         window.addEventListener('load', init, false);
@@ -42,14 +41,14 @@
         $mapping    = document.getElementById('mapping');
         $url        = document.getElementById('url');
         $create     = document.getElementById('btn-create');
-        $invUrlWarn = document.getElementById('invalid-url-warn');
+        $info       = document.getElementById('info');
 
         $mapping.focus();
         if($mapping.value != "") {
           checkAvailability();
         }
 
-        var lazyCheckAvailability = debounce(checkAvailability, 1000);
+        var lazyCheckAvailability = debounce(checkAvailability, 750);
 
         $mapping.addEventListener('keyup', lazyCheckAvailability, false);
         $create.addEventListener('click', submit, false);
@@ -59,7 +58,7 @@
         var mapping = $mapping.value;
         var url     = $url.value;
         if(!$create.classList.contains('disabled')) {
-          if($url.value.trim() != "") {
+          if(validUrlRe.test(url)) {
             console.log("submitting: " + mapping);
 
             disable();
@@ -71,6 +70,7 @@
                 case 200: // Ok
                 case 201: // Created
                   console.log('Created!');
+                  clearNotify();
                   document.getElementById('success-msg').classList.remove('hide');
                   document.getElementById('new-mapping').href = '/' + mapping;
                   break;
@@ -83,14 +83,15 @@
             data.append("url", url);
             req.send(data);
           } else {
-            $invUrlWarn.classList.remove('hide');
+            notify('error', '<strong>' + url + '</strong> is not a valid URL.');
+            $url.focus();
           }
         }
       }
 
       function checkAvailability() {
         var mapping = $mapping.value;
-        if(mapping.length > minCharLength) {
+        if(validMappingRe.test(mapping)) {
           // Initiate the request
           var req = new XMLHttpRequest();
           req.open('GET', '/mappings/' + mapping, true);
@@ -99,11 +100,13 @@
               case 404:
                 // The resource does not exist. IT IS AVAILABLE.
                 console.log('got 404. Resource is avaiable.');
+                notify('success', '<code>http://go/' + mapping + '</code> is a valid and available mapping.');
                 enable();
                 break;
               case 200:
                 // The resource exist. It is not available.
                 console.log('got 200. Resource is not available');
+                notify('warn', '<code>http://go/' + mapping + '</code> already maps to <code>' + req.responseText + '</code>');
                 disable();
                 break;
               default:
@@ -114,6 +117,10 @@
           };
           req.send(null);
         } else {
+          // Notify invalid and disable.
+          if(mapping.length > 0) {
+            notify('error', 'A valid mapping is 2+ alphanumeric (+`-`) chars');
+          }
           disable();
         }
       }
@@ -124,6 +131,31 @@
 
       function disable() {
         $create.classList.add('disabled');
+      }
+
+      // TODO: Maybe change to object notification:
+      // Eg. semantics:
+      //   var notifications = new Notifications($notifElem);
+      //   notifications.show('success', msg);
+      //   notifications.clear();
+      function notify(type, msg) {
+        switch(type) {
+          case 'success':
+            $info.innerHTML = "<div class='alert alert-success'><i class='icon-ok'></i> " + msg + "</div>"
+            break;
+          case 'warn':
+            $info.innerHTML = "<div class='alert alert-warning'><i class='icon-warning-sign'></i> " + msg + "</div>"
+            break;
+          case 'error':
+            $info.innerHTML = "<div class='alert alert-error'><i class='icon-remove'></i> " + msg + "</div>"
+            break;
+          default: // info
+            $info.innerHTML = "<div class='muted'>" + msg + "</div>";
+            break;
+        }
+      }
+      function clearNotify() {
+        $info.innerHTML = "";
       }
 
       // Utility functions
