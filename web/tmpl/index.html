@@ -12,13 +12,15 @@
 
   <h3>Welcome</h3>
 
-  <p>Please define your mapping:</p>
+  <p class='lead'>Please define your mapping:</p>
 
-  <div>
-    <input id='mapping' type='text' class='input-medium' value="{{.}}" placeholder='mapping'/>
-    =&gt; <input id='url' type='text' class='input-xlarge' placeholder='destination URL'/>
-    <button id='btn-create' class='btn btn-primary disabled'><i class='icon-white icon-ok'></i> Create</button>
-  </div>
+  <p>
+    <form class='form-inline'>
+      http://go/ <input id='mapping' type='text' class='input-medium' value="{{.}}" placeholder='mapping'/>
+      =&gt; <input id='url' type='text' class='input-xlarge' placeholder='destination URL'/>
+      <button id='btn-create' class='btn btn-primary disabled'><i class='icon-white icon-ok'></i> Create</button>
+    </form>
+  </p>
 
   <div id='info'></div>
 
