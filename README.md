@@ -65,6 +65,16 @@ IP address]`:
 `http://go/mappings/{entry}` - Will give you the url that maps the given entry
 if exists or *404 Not Found*.
 
+### Design Decisions
+
+One of the main goals is to leave it as simple and light as possible to fulfills
+its intent. Since we're not supporting retrograde browsers, HTML5 standard APIs
+are to be used and not any additional library should be included.
+
+`bootstrap.min.css` is only included to aid on somewhat decent UI.
+
+It is also a tour to HTML5 adoption.
+
 ### Roadmap
 
 The goal of this project is to stay as simple and hackable as possible. Features
@@ -80,7 +90,7 @@ need to be very, **very** justified.
 
 #### What it WILL
 
-  * Very simple csv datastore
+  * Very simple (csv/json?) datastore
 
 #### MAYBE
 
