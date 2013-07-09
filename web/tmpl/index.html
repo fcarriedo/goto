@@ -12,13 +12,13 @@
 
   <h3>Welcome</h3>
 
-  <p class='lead'>Please define your mapping:</p>
+  <p class='lead text-info'>Please define your mapping:</p>
 
   <p>
-    <form class='form-inline'>
+    <form id='mapping-form' class='form-inline'>
       http://go/ <input id='mapping' type='text' class='input-medium' value="{{.}}" placeholder='mapping'/>
       =&gt; <input id='url' type='text' class='input-xlarge' placeholder='destination URL'/>
-      <button id='btn-create' class='btn btn-primary disabled'><i class='icon-white icon-ok'></i> Create</button>
+      <button id='btn-create' class='btn btn-primary disabled'>Create</button>
     </form>
   </p>
 
@@ -48,6 +48,12 @@
         $url        = document.getElementById('url');
         $create     = document.getElementById('btn-create');
         $info       = document.getElementById('info');
+        $form       = document.getElementById('mapping-form');
+
+        // Prevent form default submit on enter. Will submit ajaxyly. Maybe change in future
+        // and let form submit. Will take to a page that says: 'Your link is ready. Test it.'
+        // Maybe even 'copy to clipboard': See: http://stackoverflow.com/questions/17527870/how-does-trello-access-the-users-clipboard/17528590#17528590
+        $form.addEventListener('submit', function(evt) {evt.preventDefault(); return false;}, false);
 
         $mapping.focus();
         if($mapping.value != "") {
