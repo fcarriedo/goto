@@ -7,7 +7,11 @@
     </thead>
     <tbody>
     {{range $k, $v := .}}
-      <tr><td>{{ $k }}</td><td> =&gt; </td><td>{{ $v }}</td></tr>
+      <tr>
+        <td><a href='/{{ $k }}'>{{ $k }}</a></td>
+        <td> =&gt; </td>
+        <td><a href='{{ $v }}'>{{ $v }}</a></td>
+      </tr>
     {{end}}
     </tbody>
   </table>
