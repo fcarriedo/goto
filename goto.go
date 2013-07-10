@@ -180,7 +180,7 @@ func save() {
 	writer := csv.NewWriter(f)
 	defer writer.Flush()
 	fmt.Println("Persisting mappings.")
-	db.RLock() // Hesitant about this locks. Can impact perf if large # of mpngs
+	db.RLock()
 	for k, v := range db.m {
 		err = writer.Write([]string{k, v})
 		if err != nil {
