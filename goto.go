@@ -9,10 +9,14 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sync"
 	"time"
 )
 
-var db = make(map[string]string)
+var db = struct {
+	sync.RWMutex
+	m map[string]string
+}{m: make(map[string]string)}
 
 // Command line args def
 var port = flag.Int("p", 80, "http port to run")
@@ -45,7 +49,9 @@ func homeHandler(w http.ResponseWriter, req *http.Request) {
 func redirectHandler(w http.ResponseWriter, req *http.Request) {
 	// Get it from the datastore and redirect
 	entry := mux.Vars(req)["entry"]
-	url := db[entry]
+	db.RLock()
+	url := db.m[entry]
+	db.RUnlock()
 	if url != "" {
 		http.Redirect(w, req, url, http.StatusFound)
 	} else {
@@ -56,7 +62,7 @@ func redirectHandler(w http.ResponseWriter, req *http.Request) {
 func entriesHandler(w http.ResponseWriter, req *http.Request) {
 	switch req.Method {
 	case "GET":
-		templates.ExecuteTemplate(w, "listing.html", db)
+		templates.ExecuteTemplate(w, "listing.html", db.m)
 	default:
 		handleErr(w, req, http.StatusMethodNotAllowed)
 	}
@@ -67,7 +73,9 @@ func entryHandler(w http.ResponseWriter, req *http.Request) {
 	entry := mux.Vars(req)["entry"]
 	switch req.Method {
 	case "GET":
-		url := db[entry]
+		db.RLock()
+		url := db.m[entry]
+		db.RUnlock()
 		if url == "" {
 			handleErr(w, req, http.StatusNotFound)
 		} else {
@@ -78,17 +86,20 @@ func entryHandler(w http.ResponseWriter, req *http.Request) {
 		if url == "" {
 			handleErr(w, req, http.StatusBadRequest)
 		} else {
-			// TODO: db map needs lock syncronization (specially here)
-			if db[entry] == "" {
+			db.Lock()
+			if db.m[entry] == "" {
 				// Didn't exist before => 201 (Created)
 				// See: http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html#sec9.6
 				w.WriteHeader(http.StatusCreated)
 			}
-			db[entry] = url
+			db.m[entry] = url
+			db.Unlock()
 			lazySave()
 		}
 	case "DELETE":
-		delete(db, entry)
+		db.Lock()
+		delete(db.m, entry)
+		db.Unlock()
 		lazySave()
 	default:
 		handleErr(w, req, http.StatusMethodNotAllowed)
@@ -148,9 +159,11 @@ func load() {
 	}
 
 	// Load them into the map
+	db.Lock()
 	for _, row := range rec {
-		db[row[0]] = row[1]
+		db.m[row[0]] = row[1]
 	}
+	db.Unlock()
 }
 
 // Saves mappings to file.
@@ -167,12 +180,14 @@ func save() {
 	writer := csv.NewWriter(f)
 	defer writer.Flush()
 	fmt.Println("Persisting mappings.")
-	for k, v := range db {
+	db.RLock() // Hesitant about this locks. Can impact perf if large # of mpngs
+	for k, v := range db.m {
 		err = writer.Write([]string{k, v})
 		if err != nil {
 			log.Printf("Error saving mapping: %s => %s", k, v)
 		}
 	}
+	db.RUnlock()
 }
 
 // Utility functions
