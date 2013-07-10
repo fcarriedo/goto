@@ -77,6 +77,12 @@ func entryHandler(w http.ResponseWriter, req *http.Request) {
 		if url == "" {
 			handleErr(w, req, http.StatusBadRequest)
 		} else {
+			// TODO: db map needs lock syncronization (specially here)
+			if db[entry] == "" {
+				// Didn't exist before => 201 (Created)
+				// See: http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html#sec9.6
+				w.WriteHeader(http.StatusCreated)
+			}
 			db[entry] = url
 			lazySave()
 		}

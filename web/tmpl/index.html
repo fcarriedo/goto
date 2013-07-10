@@ -80,11 +80,12 @@
             req.onload = function() {
               switch(req.status) {
                 case 200: // Ok
+                  console.log('Mapping Updated!');
+                  showSuccessAndTest(mapping);
+                  break;
                 case 201: // Created
-                  console.log('Created!');
-                  clearNotify();
-                  document.getElementById('success-msg').classList.remove('hide');
-                  document.getElementById('new-mapping').href = '/' + mapping;
+                  console.log('Mapping Created!');
+                  showSuccessAndTest(mapping);
                   break;
                 default:
                   console.log('got else. Something is not right: ' + req.status);
@@ -143,6 +144,12 @@
 
       function disable() {
         $create.classList.add('disabled');
+      }
+
+      function showSuccessAndTest(mapping) {
+        clearNotify();
+        document.getElementById('success-msg').classList.remove('hide');
+        document.getElementById('new-mapping').href = '/' + mapping;
       }
 
       // TODO: Maybe change to object notification:
