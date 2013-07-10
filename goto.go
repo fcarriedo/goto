@@ -20,6 +20,7 @@ var devMode = flag.Bool("dev", false, "run in development mode")
 
 var templates *template.Template
 
+// Debounce the 'save()' function to prevent file write saturation.
 var lazySave = debounce(save, 5*time.Second)
 
 func init() {
@@ -152,7 +153,7 @@ func load() {
 	}
 }
 
-// Requests a save. Debounces multiple calls
+// Saves mappings to file.
 // Very quick and dirty. Revise with channels
 // since update and save are concurrent matters.
 func save() {
@@ -176,6 +177,8 @@ func save() {
 
 // Utility functions
 
+// Debounces the given function.
+// See: http://underscorejs.org/#debounce since serves the same intent.
 func debounce(fn func(), d time.Duration) func() {
 	active := false
 	return func() {
