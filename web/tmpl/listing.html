@@ -8,15 +8,40 @@
     <thead>
       <tr><th>Entry</th><th></th><th>URL</th></tr>
     </thead>
-    <tbody>
+    <tbody id='listing'>
       {{range $k, $v := .}}
-      <tr>
+      <tr id='{{ $k }}'>
         <td><a href='/{{ $k }}'>{{ $k }}</a></td>
         <td> =&gt; </td>
         <td><a href='{{ $v }}'>{{ $v }}</a></td>
+        <td><a href='javascript:void(0)' title='delete "{{ $k }}"' class='close' onClick='deleteMapping("{{ $k }}")'><i class='icon-remove-circle'></i></a></td>
       </tr>
       {{end}}
     </tbody>
   </table>
+
+  <script>
+    var $listing = document.getElementById('listing');
+
+    function deleteMapping(mapping) {
+      var msg = 'Sure you want to delete "' + mapping + '"? Other people might depend on it. This action cannot be undone!';
+      if(confirm(msg)) {
+        var req = new XMLHttpRequest();
+        req.open('DELETE', '/mappings/' + mapping, true);
+        req.onload = function() {
+          switch(req.status) {
+            case 200:
+              var $row = document.getElementById(mapping);
+              $listing.removeChild($row);
+              break;
+            default:
+              console.log('Couldn\'t delete. Something is not right.');
+              break;
+          }
+        };
+        req.send(null);
+      }
+    }
+  </script>
 
 {{ template "footer" }}
