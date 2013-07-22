@@ -42,7 +42,12 @@ func homeHandler(w http.ResponseWriter, req *http.Request) {
 		templates = template.Must(template.New("app").ParseGlob("web/tmpl/*.html"))
 	}
 
-	templates.ExecuteTemplate(w, "index.html", req.FormValue("m"))
+	params := map[string]string{
+		"m":    req.FormValue("m"),
+		"host": req.Host,
+	}
+
+	templates.ExecuteTemplate(w, "index.html", params)
 }
 
 // The core intent of the tool
